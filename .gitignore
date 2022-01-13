@@ -1,0 +1,12 @@
+/bin/
+/test-output/
+/logs/*.log
+.classpath
+.settings
+/target/
+/doc/
+
+.idea
+*.iws
+*.iml
+*.ipr
