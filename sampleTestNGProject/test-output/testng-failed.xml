@@ -6,8 +6,9 @@
       <class name="TestNG">
         <methods>
           <include name="beforeMethod"/>
+          <include name="verifyGoogleTitle"/>
           <include name="afterTest"/>
-          <include name="verifySunlifeTitle"/>
+          <include name="performGoogleSearch"/>
           <include name="afterMethod"/>
         </methods>
       </class> <!-- TestNG -->

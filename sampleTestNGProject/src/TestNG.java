@@ -1,6 +1,7 @@
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
+//import org.openqa.selenium.WebElement;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.AfterMethod;
@@ -10,6 +11,8 @@ import org.testng.asserts.SoftAssert;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
 //import org.testng.annotations.*;
+import java.util.Date;
+import java.text.SimpleDateFormat;
 
 public class TestNG {
 // create new object of ChromeDriver  
@@ -21,32 +24,30 @@ public class TestNG {
 		System.out.println("---> beforeMethod: Starting Test On Chrome Browser <---");
 	}
 
-	@Test(priority = 0, description = "Validate the title on the main Sunlife webpage")
-	public void verifySunlifeTitle() {
+	@Test(priority = 0, description = "Validate the title on the main Google webpage")
+	public void verifyGoogleTitle() {
 
 		// set Chromedriver and define web URL
 		System.setProperty("webdriver.chrome.driver", "src/test/resources/webdriver/chromedriver.exe");
-		String baseUrl = "https://www.sunlife.ca/en/";
+		String baseUrl = "https://www.google.ca/";
 		WebDriver driver = new ChromeDriver();
 
 		System.out.println("-----Launching Google Chrome browser-----");
 		driver.get(baseUrl);
 
 		// Page Title Validation
-		String expectedTitle = "Not Sunlife";
+		String expectedTitle = "Perhaps Google"; // ------- Updated to FAIL -------
 		String extractedTitle = driver.getTitle();
-		System.out.println("Expected page title is: " + expectedTitle);
-		System.out.println("Web page title is: " + extractedTitle); //
 		Assert.assertEquals(extractedTitle, expectedTitle);
 
 	}
 
-	@Test(priority = 1, description = "Validate the sign in button, click it, and input sign in text on the Sunlife webpage")
-	public void performActionOnSignIn() throws InterruptedException {
+	@Test(priority = 1, description = "Enter into the Google search field, click Google Search and validate results")
+	public void performGoogleSearch() throws InterruptedException {
 
 		// set Chromedriver and define web URL
 		System.setProperty("webdriver.chrome.driver", "src/test/resources/webdriver/chromedriver.exe");
-		String baseUrl = "https://www.sunlife.ca/en/";
+		String baseUrl = "https://www.google.ca/";
 		WebDriver driver = new ChromeDriver();
 
 		/*
@@ -58,58 +59,39 @@ public class TestNG {
 		System.out.println("-----Launching Google Chrome browser-----");
 		driver.get(baseUrl);
 
-		// 1) Validate Sign in button label
-		// Define location
-		String signInXpath = "//span[@class='button-class']";
+		// 1) Enter search criteria
+		// Define search field XPath location
+		String googleSearchBar = "//input[@title='Search']";
+		// Define search string
+		String googleSearchValue = "Today's Date";
+		// Enter value into the search bar
+		driver.findElement(By.xpath(googleSearchBar)).sendKeys(googleSearchValue + Keys.TAB);
 
-		// Define expected results
-		String expectedSignInButtonLabel = "Sign in";
+		// 2) Validate search button and click it
+		// Define search button XPath location
+		String googleSearchButton = "//body/div/div/form[contains(@role,'search')]/div[contains(@jsmodel,'vWNDde')]/div[contains(@jscontroller,'cnjECf')]/div/center/input[1]";
+		// Define expected google search button label and validate
+		String expectedGoogleSearchButtonLabel = "Google Search";
+		String googleSearchButtonLabel = driver.findElement(By.xpath(googleSearchButton)).getAttribute("value");
+		softAssert.assertEquals(googleSearchButtonLabel, expectedGoogleSearchButtonLabel);
+		// Click search button
+		driver.findElement(By.xpath(googleSearchButton)).click();
+		Thread.sleep(1000); // Search to fully load page for next test
 
-		// Validate results
-		String signInButtonLabel = driver.findElement(By.xpath(signInXpath)).getText();
-		softAssert.assertEquals(expectedSignInButtonLabel, signInButtonLabel);
-
-		// 2) Click the Sign in button
-		driver.findElement(By.xpath(signInXpath)).click();
-		Thread.sleep(1000); // Required to allow sign-in to fully load for next test
-
-		// 3) Validate Labels on the Sign in page
-		// Define location
-		String signInTitleXpath = "//h4[@id='customerSignInHeader']";
-		String signInEmailOrAccessIDXpath = "//input[@id='USER']";
-		String signInRememberMeXpath = "//label[@id='remembermelabel']";
-		String signInPasswordXpath = "//input[@id='PASSWORD']";
-
-		// Define expected results
-		String expectedSignInTitle = "Client sign in";
-		String expectedSignInOrAccessFieldLabel = "Email/Access ID";
-		String expectedRememberMeCheckbox = "Remember me";
-		String expectedPasswordFieldLabel = "Password";
-
-		// Validate Labels
-		String signInTitle = driver.findElement(By.xpath(signInTitleXpath)).getText();
-		softAssert.assertEquals(expectedSignInTitle, signInTitle);
-		String signInEmailOrAccessID = driver.findElement(By.xpath(signInEmailOrAccessIDXpath))
-				.getAttribute("placeholder");
-		softAssert.assertEquals(expectedSignInOrAccessFieldLabel, signInEmailOrAccessID);
-		String signInRememberMe = driver.findElement(By.xpath(signInRememberMeXpath)).getText();
-		softAssert.assertEquals(expectedRememberMeCheckbox, signInRememberMe);
-		String signInPassword = driver.findElement(By.xpath(signInPasswordXpath)).getAttribute("placeholder");
-		softAssert.assertEquals(expectedPasswordFieldLabel, signInPassword);
-
-		// 4) Input something into the Sign in page
-		// Define location
-		String signInRememberMeCheckBoxXpath = "//input[@id='rememberIDModal']";
-
-		// Define values to input into fields
-		String emailAccessInput = "Automation is cool";
-		String passwordInput = "Somepassword";
-
-		driver.findElement(By.xpath(signInEmailOrAccessIDXpath)).sendKeys(emailAccessInput);
-		driver.findElement(By.xpath(signInRememberMeCheckBoxXpath)).click();
-		driver.findElement(By.xpath(signInPasswordXpath)).sendKeys(passwordInput);
-		softAssert.assertAll(); // if this is not used at the end of the test block, all tests will default
-								// to pass
+		// 3) Validate top search results
+		// Define XPath for first search bar results
+		String googleSearchResultsBar = "//div[@class='vk_bk dDoNo FzvWSb']";
+		// Get text of top search result
+		String googleResultsTodaysDate = driver.findElement(By.xpath(googleSearchResultsBar)).getText();
+		// Format today's date
+		Date currentDate = new Date();
+		String expectedDateFormatString = "EEEE, MMMM d, yyyy";
+		SimpleDateFormat formatTodaysDate = new SimpleDateFormat(expectedDateFormatString);
+		String expectedFormattedTodaysDate = formatTodaysDate.format(currentDate) + "Some Text"; // ------- Updated to FAIL -------
+		// Validate google date matches today's date
+		softAssert.assertEquals(googleResultsTodaysDate, expectedFormattedTodaysDate);
+		softAssert.assertAll(); // if this is not used at the end of the test block, all tests will default to
+								// pass
 	}
 
 	@AfterMethod
